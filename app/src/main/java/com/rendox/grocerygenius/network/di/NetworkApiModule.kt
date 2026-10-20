@@ -34,17 +34,6 @@ object NetworkApiModule {
                 )
             }
         }
-        .addInterceptor { chain ->
-            val originalRequest = chain.request()
-            val urlWithQueryParam = originalRequest.url.newBuilder()
-                .addQueryParameter("ref", "production")
-                .build()
-            val requestWithHeadersAndQueryParam = originalRequest.newBuilder()
-                .header("Accept", "application/vnd.github.raw+json")
-                .url(urlWithQueryParam)
-                .build()
-            chain.proceed(requestWithHeadersAndQueryParam)
-        }
         .readTimeout(20, TimeUnit.SECONDS)
         .connectTimeout(20, TimeUnit.SECONDS)
         .build()
@@ -53,7 +42,9 @@ object NetworkApiModule {
     @Singleton
     fun provideGitHubApi(okHttpClient: OkHttpClient): GitHubApi = Retrofit.Builder()
         .client(okHttpClient)
-        .baseUrl("https://api.github.com/repos/DanielRendox/GroceryGenius/contents/assets/")
+        // raw.githubusercontent.com is not subject to the REST API limit of 60 unauthenticated
+        // requests per hour, which made the first sync fail with HTTP 403
+        .baseUrl("https://raw.githubusercontent.com/Krys600/GroceryGenius/develop/assets/")
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
         .create(GitHubApi::class.java)
