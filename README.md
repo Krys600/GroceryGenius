@@ -66,6 +66,26 @@ These features may or may not be implemented in the long term.
 
 You can install the app from the [GitHub releases](https://github.com/DanielRendox/GroceryGenius/releases) page or build it yourself by [cloning the project](https://docs.github.com/articles/cloning-a-repository) and launching it in the latest version of [Android Studio](https://developer.android.com/studio).
 
+### Publishing a release
+
+Pushing a tag such as `v0.2.0` (or running the `release` workflow manually) runs the unit tests, builds the release APK and publishes it on the GitHub releases page together with its SHA-256 checksum.
+
+To sign the releases with your own key, create a keystore once and add it as repository secrets (Settings → Secrets and variables → Actions):
+
+```shell
+keytool -genkeypair -v -keystore release.keystore -alias grocerygenius -keyalg RSA -keysize 4096 -validity 10000
+base64 -w 0 release.keystore  # the value of RELEASE_KEYSTORE_BASE64
+```
+
+| Secret | Value |
+|---|---|
+| `RELEASE_KEYSTORE_BASE64` | The base64-encoded keystore |
+| `RELEASE_KEYSTORE_PASSWORD` | The keystore password |
+| `RELEASE_KEY_ALIAS` | The key alias, e.g. `grocerygenius` |
+| `RELEASE_KEY_PASSWORD` | The key password (the same as the keystore password for keystores created with `keytool`) |
+
+Without these secrets, the APK is signed with a temporary debug key, so a later release can't be installed as an update. Keep the keystore safe: an app that was signed with it can only be updated with the same key.
+
 ## Tech stack
 
 - Jetpack Compose for the user interface, with a single Activity and no Fragments

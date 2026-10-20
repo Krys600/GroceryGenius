@@ -8,6 +8,10 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+// Release builds are signed with the keystore passed through these environment variables
+// (see .github/workflows/release.yml), or with the debug key if they are not set
+val releaseKeystoreFile: String? = providers.environmentVariable("RELEASE_KEYSTORE_FILE").orNull
+
 android {
     namespace = "com.rendox.grocerygenius"
     compileSdk = 34
@@ -16,12 +20,23 @@ android {
         applicationId = "com.rendox.grocerygenius"
         minSdk = 21
         targetSdk = 34
-        versionCode = 6
-        versionName = "0.1.3"
+        versionCode = 7
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "com.rendox.grocerygenius.testing.GroceryGeniusTestRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        releaseKeystoreFile?.let { keystorePath ->
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = providers.environmentVariable("RELEASE_KEYSTORE_PASSWORD").orNull
+                keyAlias = providers.environmentVariable("RELEASE_KEY_ALIAS").orNull
+                keyPassword = providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull
+            }
         }
     }
 
@@ -33,7 +48,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (releaseKeystoreFile != null) "release" else "debug")
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
