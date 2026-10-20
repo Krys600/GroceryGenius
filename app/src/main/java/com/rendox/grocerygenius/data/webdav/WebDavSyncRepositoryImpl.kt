@@ -1,14 +1,19 @@
 package com.rendox.grocerygenius.data.webdav
 
+import android.net.Uri
 import android.util.Log
 import com.rendox.grocerygenius.datastore.WebDavSyncPreferencesDataSource
+import com.rendox.grocerygenius.model.SyncMethod
+import com.rendox.grocerygenius.model.SyncSchedule
 import com.rendox.grocerygenius.model.WebDavSyncConfig
 import com.rendox.grocerygenius.model.WebDavSyncError
 import com.rendox.grocerygenius.model.WebDavSyncException
 import com.rendox.grocerygenius.model.WebDavSyncStatus
 import com.rendox.grocerygenius.network.di.Dispatcher
 import com.rendox.grocerygenius.network.di.GroceryGeniusDispatchers
+import com.rendox.grocerygenius.network.document.DocumentFileClient
 import com.rendox.grocerygenius.network.webdav.WebDavClient
+import com.rendox.grocerygenius.sync.webdav.RemoteSnapshotStore
 import com.rendox.grocerygenius.sync.webdav.SyncBaseStore
 import com.rendox.grocerygenius.sync.webdav.WebDavSyncEngine
 import javax.inject.Inject
@@ -25,6 +30,7 @@ import kotlinx.coroutines.withContext
 class WebDavSyncRepositoryImpl @Inject constructor(
     private val preferencesDataSource: WebDavSyncPreferencesDataSource,
     private val webDavClient: WebDavClient,
+    private val documentFileClient: DocumentFileClient,
     private val syncEngine: WebDavSyncEngine,
     private val syncBaseStore: SyncBaseStore,
     @Dispatcher(GroceryGeniusDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
@@ -41,15 +47,22 @@ class WebDavSyncRepositoryImpl @Inject constructor(
         }
 
     override suspend fun connect(config: WebDavSyncConfig): WebDavSyncError? {
-        val newConfig = config.copy(
-            serverUrl = config.serverUrl.trim(),
-            username = config.username.trim(),
-            isEnabled = true
-        )
+        val newConfig = when (config.method) {
+            SyncMethod.WEBDAV -> config.copy(
+                serverUrl = config.serverUrl.trim(),
+                username = config.username.trim(),
+                fileUri = ""
+            )
+
+            SyncMethod.FILE -> config.copy(password = "")
+        }.copy(isEnabled = true)
         try {
-            webDavClient.checkConnection(newConfig)
+            when (newConfig.method) {
+                SyncMethod.WEBDAV -> webDavClient.checkConnection(newConfig)
+                SyncMethod.FILE -> documentFileClient.connect(Uri.parse(newConfig.fileUri))
+            }
         } catch (exception: WebDavSyncException) {
-            Log.w(TAG, "Failed to connect to the WebDAV server", exception)
+            Log.w(TAG, "Failed to connect to ${newConfig.method}", exception)
             return exception.error
         }
         mutex.withLock {
@@ -62,9 +75,24 @@ class WebDavSyncRepositoryImpl @Inject constructor(
 
     override suspend fun disconnect() {
         mutex.withLock {
+            val config = preferencesDataSource.config.first()
+            if (config.method == SyncMethod.FILE && config.fileUri.isNotEmpty()) {
+                documentFileClient.disconnect(Uri.parse(config.fileUri))
+            }
             preferencesDataSource.disable()
             syncBaseStore.clear()
         }
+    }
+
+    override suspend fun updateSchedule(schedule: SyncSchedule) {
+        preferencesDataSource.saveSchedule(schedule)
+    }
+
+    override suspend fun syncFileName(fileUri: String): String? = documentFileClient.displayName(Uri.parse(fileUri))
+
+    private fun remoteSnapshotStore(config: WebDavSyncConfig): RemoteSnapshotStore = when (config.method) {
+        SyncMethod.WEBDAV -> webDavClient.remoteSnapshotStore(config)
+        SyncMethod.FILE -> documentFileClient.remoteSnapshotStore(Uri.parse(config.fileUri))
     }
 
     override suspend fun sync(): WebDavSyncResult = withContext(ioDispatcher) {
@@ -74,18 +102,18 @@ class WebDavSyncRepositoryImpl @Inject constructor(
 
             isSyncing.value = true
             try {
-                syncEngine.sync(webDavClient.remoteSnapshotStore(config))
+                syncEngine.sync(remoteSnapshotStore(config))
                 preferencesDataSource.recordSyncSuccess(System.currentTimeMillis())
                 WebDavSyncResult.SUCCESS
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: WebDavSyncException) {
-                Log.w(TAG, "WebDAV sync failed", exception)
+                Log.w(TAG, "${config.method} sync failed", exception)
                 preferencesDataSource.recordSyncFailure(exception.error)
                 if (exception.error.isRetryable) WebDavSyncResult.RETRYABLE_FAILURE else WebDavSyncResult.FAILURE
             } catch (exception: Exception) {
                 // e.g. a database error or a failure to save the sync base
-                Log.e(TAG, "WebDAV sync failed unexpectedly", exception)
+                Log.e(TAG, "${config.method} sync failed unexpectedly", exception)
                 preferencesDataSource.recordSyncFailure(WebDavSyncError.UNKNOWN)
                 WebDavSyncResult.RETRYABLE_FAILURE
             } finally {

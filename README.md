@@ -39,20 +39,36 @@ Grocery Genius is a free, customizable shopping list app with a modern design, a
 - **Manage Separate Lists.** Create multiple grocery lists and easily reorder them on the main screen with drag-and-drop functionality.
 - **Customization.** You can choose a default grocery list, reorder categories, switch between dark and light modes, and choose a different color scheme in the settings.
 - **Offline Mode.** Initially, the app requires an internet connection to fetch predefined groceries. After that, you can use it fully offline.
-- **Sync with Nextcloud or WebDAV.** Keep your grocery lists in sync across your devices through your own Nextcloud or any other WebDAV server. Connect several devices (or the devices of your family members) to the same folder to share the lists. See [Sync with Nextcloud / WebDAV](#sync-with-nextcloud--webdav).
+- **Sync with Nextcloud or WebDAV.** Keep your grocery lists in sync across your devices through the Nextcloud app, any other app that shows up in the system file picker, or any WebDAV server. Use the same sync file on several devices (or the devices of your family members) to share the lists. See [Sync with Nextcloud](#sync-with-nextcloud).
 - **Completely Free.** Grocery Genius is free and open source, with no limitations. Add as many grocery lists as you want. All features available now will remain free forever.
 - **Respects Your Privacy.** Your confidential data always remains on your device.  Neither the developers nor any third parties have access to your information. For more details, see the [Privacy Policy](https://github.com/DanielRendox/GroceryGenius/blob/develop/PRIVACY_POLICY.md). If you enable sync, your data is sent only to the server you configured.
 
-## Sync with Nextcloud / WebDAV
+## Sync with Nextcloud
+
+Open **Settings → Nextcloud Sync** and choose how to connect.
+
+### With the Nextcloud app (no server address or password)
+
+1. Install the [Nextcloud app](https://nextcloud.com/install/#install-clients) and log in.
+2. In Grocery Genius, select **Nextcloud app / file** and tap **Create File**. In the file picker, open the menu, select **Nextcloud** and choose a folder, for example a folder that is shared with your family.
+3. On your other devices, tap **Choose File** and select the same `grocery-genius-sync.json` file.
+
+The Nextcloud app uploads the changes to the server, so it must stay logged in. This also works with other apps that provide files to the file picker, or with a file on the device that another app keeps in sync.
+
+### With a WebDAV server
 
 1. In Nextcloud, open **Settings → Security** and create an app password for Grocery Genius.
 2. In Nextcloud Files, open **Files settings** (bottom left) and copy the **WebDAV** URL. It looks like `https://cloud.example.com/remote.php/dav/files/USERNAME/`. You can also use the URL of a subfolder, for example a folder that is shared with your family.
-3. In the app, open **Settings → Nextcloud / WebDAV Sync**, enter the URL, your username and the app password, and tap **Connect**.
+3. In the app, select **WebDAV server**, enter the URL, your username and the app password, and tap **Connect**.
 4. Repeat on your other devices with the same folder.
 
-The app stores everything in a single file, `GroceryGenius/grocery-genius-sync.json`, inside the configured folder. It syncs your grocery lists and the groceries in them, your custom groceries, the icons and categories you assigned to groceries, and the category order. Sync runs when the app starts or comes to the foreground, a few seconds after you change something, and every 15 minutes in the background. You can also sync manually on the sync screen.
+The app stores everything in the file `GroceryGenius/grocery-genius-sync.json` inside the configured folder. Any server that supports WebDAV should work, for example ownCloud or Apache/nginx with WebDAV enabled. An HTTPS connection with a trusted certificate is required.
 
-Any server that supports WebDAV should work, for example ownCloud or Apache/nginx with WebDAV enabled. An HTTPS connection with a trusted certificate is required.
+### What is synced and when
+
+Everything is stored in a single file. It contains your grocery lists and the groceries in them, your custom groceries, the icons and categories you assigned to groceries, and the category order.
+
+By default, sync runs when the app starts or comes to the foreground, a few seconds after you change something, and every 15 minutes in the background. Under **Schedule** you can change the background interval (or turn it off), require an unmetered network, no roaming or no network at all, wait until the battery is not low, and turn off syncing after changes. You can always sync manually with **Sync Now**.
 
 ## Roadmap
 
@@ -113,9 +129,9 @@ Without these secrets, the APK is signed with a temporary debug key, so a later 
 3. WebDAV sync works without any changes to the database schema and without a special backend:
     - The user data is exported to a JSON snapshot (`SyncSnapshot`) and stored on the server as a single file. Predefined data (icons, categories and default products) is not uploaded because every device fetches it from GitHub. Only its customizable parts are synced, such as the category order.
     - After every successful sync, the app saves the state that the device and the server agreed on (the base) in its internal storage. The next sync performs a three-way merge of the base, the local data and the server data (`SnapshotMerger`), so it can tell which side changed or deleted what. Changes to different records, or to different fields of the same record, are combined. If both sides changed the same field, the local value wins, except for the purchased state, where the most recent change wins.
-    - The upload uses the file's ETag (`If-Match` / `If-None-Match`), so if another device uploaded in the meantime, the app merges again instead of overwriting its changes.
+    - The upload uses the file's ETag (`If-Match` / `If-None-Match`), so if another device uploaded in the meantime, the app merges again instead of overwriting its changes. Files from the system file picker (Storage Access Framework) have no ETag, so the app reads the file again right before writing it and merges again if it changed (`DocumentSnapshotStore`).
     - Records that can't be stored locally yet, such as groceries that reference predefined products the device hasn't downloaded, are kept on the server and applied once the data is available.
-    - The sync is scheduled with WorkManager on app startup, when the app comes to the foreground, periodically, and a few seconds after local changes, which are detected with Room's `InvalidationTracker`.
+    - The sync is scheduled with WorkManager on app startup, when the app comes to the foreground, periodically, and a few seconds after local changes, which are detected with Room's `InvalidationTracker`. The interval and the network and battery constraints come from the user's schedule settings.
 
 ## Let’s work together!
 
