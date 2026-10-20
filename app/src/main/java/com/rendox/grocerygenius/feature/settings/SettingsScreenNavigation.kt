@@ -15,14 +15,18 @@ fun NavController.navigateToSettings(navOptions: (NavOptionsBuilder.() -> Unit) 
     )
 }
 
-fun NavGraphBuilder.settingsScreen(navigateBack: () -> Unit) {
+fun NavGraphBuilder.settingsScreen(
+    navigateBack: () -> Unit,
+    navigateToWebDavSync: () -> Unit
+) {
     composable(
         route = SETTINGS_ROUTE,
         enterTransition = { GroceryGeniusTransition.SlideInVertically },
         exitTransition = { GroceryGeniusTransition.SlideOutVertically }
     ) {
         SettingsRoute(
-            navigateBack = navigateBack
+            navigateBack = navigateBack,
+            navigateToWebDavSync = navigateToWebDavSync
         )
     }
 }

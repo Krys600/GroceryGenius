@@ -12,6 +12,7 @@ import com.rendox.grocerygenius.database.grocerylist.GroceryListDao
 import com.rendox.grocerygenius.database.grocerylist.GroceryListEntity
 import com.rendox.grocerygenius.database.product.ProductDao
 import com.rendox.grocerygenius.database.product.ProductEntity
+import com.rendox.grocerygenius.database.sync.SyncDao
 
 @Database(
     entities = [
@@ -29,4 +30,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun groceryListDao(): GroceryListDao
     abstract fun productDao(): ProductDao
     abstract fun iconDao(): IconDao
+    abstract fun syncDao(): SyncDao
 }

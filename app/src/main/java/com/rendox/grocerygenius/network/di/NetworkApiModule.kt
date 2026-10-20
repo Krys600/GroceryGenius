@@ -2,6 +2,7 @@ package com.rendox.grocerygenius.network.di
 
 import com.rendox.grocerygenius.BuildConfig
 import com.rendox.grocerygenius.network.GitHubApi
+import com.rendox.grocerygenius.network.webdav.WebDavHttpClient
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -56,4 +57,26 @@ object NetworkApiModule {
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
         .create(GitHubApi::class.java)
+
+    @Provides
+    @Singleton
+    @WebDavHttpClient
+    fun provideWebDavOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .apply {
+            if (BuildConfig.DEBUG) {
+                this.addNetworkInterceptor(
+                    HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.HEADERS
+                        redactHeader("Authorization")
+                    }
+                )
+            }
+        }
+        // OkHttp turns redirected PUT requests into GET requests, which would drop the upload
+        .followRedirects(false)
+        .followSslRedirects(false)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .build()
 }

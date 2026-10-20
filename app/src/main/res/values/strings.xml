@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">Grocery Genius</string>
     <!-- GroceryListScreen -->
     <string name="purchased_groceries_group_title">Recently used</string>
@@ -50,6 +50,41 @@
     <string name="settings_credits">Credits</string>
     <string name="settings_image_by_freepik_title">Image by pch.vector on Freepik</string>
     <string name="settings_image_by_freepik_description">The image displayed on grocery list screen was created by pch.vector</string>
+    <string name="settings_sync" tools:ignore="MissingTranslation">Sync</string>
+    <!-- WebDavSyncScreen -->
+    <string name="webdav_sync_title" tools:ignore="MissingTranslation">Nextcloud / WebDAV Sync</string>
+    <string name="webdav_sync_settings_description" tools:ignore="MissingTranslation">Keep your grocery lists in sync across devices using your own server.</string>
+    <string name="webdav_sync_description" tools:ignore="MissingTranslation">Sync your grocery lists, custom groceries and category order through your Nextcloud or any other WebDAV server. All devices connected to the same folder share the same lists, so you can also share them with your family by connecting to a shared folder.</string>
+    <string name="webdav_sync_server_url" tools:ignore="MissingTranslation">WebDAV folder URL</string>
+    <string name="webdav_sync_server_url_placeholder" translatable="false">https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
+    <string name="webdav_sync_server_url_hint" tools:ignore="MissingTranslation">In Nextcloud, you can find it under Files → Files settings → WebDAV.</string>
+    <string name="webdav_sync_username" tools:ignore="MissingTranslation">Username</string>
+    <string name="webdav_sync_password" tools:ignore="MissingTranslation">Password</string>
+    <string name="webdav_sync_password_hint" tools:ignore="MissingTranslation">For Nextcloud, it is recommended to create an app password under Settings → Security.</string>
+    <string name="webdav_sync_show_password" tools:ignore="MissingTranslation">Show password</string>
+    <string name="webdav_sync_hide_password" tools:ignore="MissingTranslation">Hide password</string>
+    <string name="webdav_sync_connect" tools:ignore="MissingTranslation">Connect</string>
+    <string name="webdav_sync_disconnect" tools:ignore="MissingTranslation">Disconnect</string>
+    <string name="webdav_sync_sync_now" tools:ignore="MissingTranslation">Sync Now</string>
+    <string name="webdav_sync_required_fields_error" tools:ignore="MissingTranslation">Please fill in all fields.</string>
+    <string name="webdav_sync_status_syncing" tools:ignore="MissingTranslation">Syncing…</string>
+    <string name="webdav_sync_status_not_synced" tools:ignore="MissingTranslation">Not synced yet</string>
+    <string name="webdav_sync_status_last_synced" tools:ignore="MissingTranslation">Last synced: %s</string>
+    <string name="webdav_sync_status_failed" tools:ignore="MissingTranslation">Last sync failed: %s</string>
+    <string name="webdav_sync_storage_note" tools:ignore="MissingTranslation">Your data is stored in the file %s inside this folder. The data on your device and on the server is kept when you disconnect.</string>
+    <string name="webdav_sync_error_invalid_url" tools:ignore="MissingTranslation">The URL is not valid. It must start with https:// or http://.</string>
+    <string name="webdav_sync_error_insecure_connection" tools:ignore="MissingTranslation">Unencrypted connections are not allowed. Please use https://.</string>
+    <string name="webdav_sync_error_untrusted_certificate" tools:ignore="MissingTranslation">The server\'s certificate is not trusted.</string>
+    <string name="webdav_sync_error_authentication_failed" tools:ignore="MissingTranslation">Wrong username or password.</string>
+    <string name="webdav_sync_error_not_found" tools:ignore="MissingTranslation">The folder was not found. Please check the URL.</string>
+    <string name="webdav_sync_error_not_a_webdav_folder" tools:ignore="MissingTranslation">The URL does not point to a WebDAV folder.</string>
+    <string name="webdav_sync_error_redirect" tools:ignore="MissingTranslation">The server redirected the request. Please enter the exact WebDAV URL.</string>
+    <string name="webdav_sync_error_server_error" tools:ignore="MissingTranslation">The server could not process the request.</string>
+    <string name="webdav_sync_error_network_error" tools:ignore="MissingTranslation">Could not connect to the server.</string>
+    <string name="webdav_sync_error_invalid_remote_data" tools:ignore="MissingTranslation">The sync file on the server is damaged.</string>
+    <string name="webdav_sync_error_unsupported_remote_version" tools:ignore="MissingTranslation">The sync file was created by a newer version of the app. Please update the app.</string>
+    <string name="webdav_sync_error_too_many_conflicts" tools:ignore="MissingTranslation">The data kept changing during sync. It will be retried.</string>
+    <string name="webdav_sync_error_unknown" tools:ignore="MissingTranslation">An unexpected error occurred.</string>
     <!-- IconPickerScreen -->
     <string name="icon_picker_screen_title">Choose icon</string>
     <string name="icon_picker_search_field_placeholder">Search an icon</string>

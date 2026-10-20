@@ -68,6 +68,7 @@ com-squareup-moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi
 com-squareup-moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
 com-squareup-moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 com-squareup-okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+com-squareup-okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 com-squareup-retrofit-core = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 com-squareup-retrofit-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 com-google-truth = { module = "com.google.truth:truth", version.ref = "truth" }

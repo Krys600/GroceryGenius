@@ -96,7 +96,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsRoute(
     viewModel: SettingsScreenViewModel = hiltViewModel(),
-    navigateBack: () -> Unit = {}
+    navigateBack: () -> Unit = {},
+    navigateToWebDavSync: () -> Unit = {}
 ) {
     val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
     val showDynamicColorNotSupportedMessage by viewModel.showDynamicColorNotSupportedMessage
@@ -106,7 +107,8 @@ fun SettingsRoute(
         uiState = uiState,
         showDynamicColorNotSupportedMessage = showDynamicColorNotSupportedMessage,
         onIntent = viewModel::onIntent,
-        navigateBack = navigateBack
+        navigateBack = navigateBack,
+        navigateToWebDavSync = navigateToWebDavSync
     )
 }
 
@@ -116,7 +118,8 @@ private fun SettingsScreen(
     uiState: SettingsScreenState,
     showDynamicColorNotSupportedMessage: UiEvent<Unit>?,
     onIntent: (SettingsScreenIntent) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    navigateToWebDavSync: () -> Unit
 ) {
     var isThemeDropdownExpanded by remember { mutableStateOf(false) }
     var isDefaultListDropdownExpanded by remember { mutableStateOf(false) }
@@ -282,6 +285,15 @@ private fun SettingsScreen(
                                 onIntent(SettingsScreenIntent.OnResetCategoriesOrder)
                             }
                         )
+                    }
+                    item {
+                        SettingsTitle(
+                            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+                            title = stringResource(R.string.settings_sync)
+                        )
+                    }
+                    item {
+                        WebDavSyncSetting(onClick = navigateToWebDavSync)
                     }
                     item {
                         SettingsTitle(
@@ -641,6 +653,26 @@ private fun CategoriesOrderSetting(
 }
 
 @Composable
+private fun WebDavSyncSetting(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    CustomIconSetting(
+        modifier = modifier
+            .padding(top = 16.dp)
+            .clickable(onClick = onClick),
+        title = stringResource(R.string.webdav_sync_title),
+        description = stringResource(R.string.webdav_sync_settings_description),
+        icon = {
+            Icon(
+                painterResource(R.drawable.baseline_sync_24),
+                contentDescription = null
+            )
+        }
+    )
+}
+
+@Composable
 private fun GitHubLink(modifier: Modifier = Modifier) {
     val uriHandler = LocalUriHandler.current
     CustomIconSetting(
@@ -725,6 +757,7 @@ fun PreviewSettingsScreen() {
                 },
                 onIntent = {},
                 navigateBack = {},
+                navigateToWebDavSync = {},
                 showDynamicColorNotSupportedMessage = null
             )
         }

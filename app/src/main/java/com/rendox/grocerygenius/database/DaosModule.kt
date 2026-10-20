@@ -5,6 +5,7 @@ import com.rendox.grocerygenius.database.grocery.GroceryDao
 import com.rendox.grocerygenius.database.groceryicon.IconDao
 import com.rendox.grocerygenius.database.grocerylist.GroceryListDao
 import com.rendox.grocerygenius.database.product.ProductDao
+import com.rendox.grocerygenius.database.sync.SyncDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +28,7 @@ object DaosModule {
 
     @Provides
     fun providesIconDao(appDatabase: AppDatabase): IconDao = appDatabase.iconDao()
+
+    @Provides
+    fun providesSyncDao(appDatabase: AppDatabase): SyncDao = appDatabase.syncDao()
 }

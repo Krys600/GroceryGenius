@@ -31,8 +31,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.rendox.grocerygenius.model.DarkThemeConfig
+import com.rendox.grocerygenius.sync.work.initializers.WebDavSyncScheduler
 import com.rendox.grocerygenius.ui.theme.GroceryGeniusTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -41,6 +43,15 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
+
+    @Inject
+    lateinit var webDavSyncScheduler: WebDavSyncScheduler
+
+    override fun onStart() {
+        super.onStart()
+        // fetch the changes made on other devices while the app was in the background
+        webDavSyncScheduler.requestSync()
+    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     @OptIn(ExperimentalComposeUiApi::class)

@@ -126,6 +126,7 @@ dependencies {
     testImplementation(libs.org.junit.jupiter.params)
 
     testImplementation(libs.com.google.truth)
+    testImplementation(libs.com.squareup.okhttp.mockwebserver)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

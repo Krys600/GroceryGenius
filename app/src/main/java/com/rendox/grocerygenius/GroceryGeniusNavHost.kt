@@ -16,8 +16,11 @@ import com.rendox.grocerygenius.feature.iconpicker.iconPickerScreen
 import com.rendox.grocerygenius.feature.iconpicker.navigateToIconPicker
 import com.rendox.grocerygenius.feature.onboarding.ONBOARDING_ROUTE
 import com.rendox.grocerygenius.feature.onboarding.onboardingScreen
+import com.rendox.grocerygenius.feature.settings.SETTINGS_ROUTE
 import com.rendox.grocerygenius.feature.settings.navigateToSettings
 import com.rendox.grocerygenius.feature.settings.settingsScreen
+import com.rendox.grocerygenius.feature.webdavsync.navigateToWebDavSync
+import com.rendox.grocerygenius.feature.webdavsync.webDavSyncScreen
 
 @Composable
 fun GroceryGeniusNavHost(
@@ -67,6 +70,14 @@ fun GroceryGeniusNavHost(
             }
         )
         settingsScreen(
+            navigateBack = { navController.popBackStack() },
+            navigateToWebDavSync = {
+                if (navController.currentDestination?.route == SETTINGS_ROUTE) {
+                    navController.navigateToWebDavSync()
+                }
+            }
+        )
+        webDavSyncScreen(
             navigateBack = { navController.popBackStack() }
         )
         iconPickerScreen(

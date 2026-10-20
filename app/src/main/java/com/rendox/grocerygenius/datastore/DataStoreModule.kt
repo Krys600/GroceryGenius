@@ -15,12 +15,23 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 private const val USER_PREFERENCES = "user_preferences"
+
+/**
+ * The WebDAV sync settings are kept in a separate file that is excluded from backups,
+ * because it contains the server password.
+ */
+const val WEBDAV_SYNC_PREFERENCES = "webdav_sync"
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class WebDavSyncPreferences
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -39,6 +50,22 @@ object DataStoreModule {
             migrations = listOf(SharedPreferencesMigration(appContext, USER_PREFERENCES)),
             scope = CoroutineScope(ioDispatcher + SupervisorJob()),
             produceFile = { appContext.preferencesDataStoreFile(USER_PREFERENCES) }
+        )
+    }
+
+    @Singleton
+    @Provides
+    @WebDavSyncPreferences
+    fun provideWebDavSyncPreferencesDataStore(
+        @ApplicationContext appContext: Context,
+        @Dispatcher(GroceryGeniusDispatchers.IO) ioDispatcher: CoroutineDispatcher
+    ): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() }
+            ),
+            scope = CoroutineScope(ioDispatcher + SupervisorJob()),
+            produceFile = { appContext.preferencesDataStoreFile(WEBDAV_SYNC_PREFERENCES) }
         )
     }
 }
