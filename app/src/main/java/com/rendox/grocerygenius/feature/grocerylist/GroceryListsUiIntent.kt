@@ -5,6 +5,7 @@ import com.rendox.grocerygenius.model.Grocery
 
 sealed interface GroceryListsUiIntent {
     data class OnGroceryItemClick(val item: Grocery) : GroceryListsUiIntent
+    data class OnUndoPurchase(val item: Grocery) : GroceryListsUiIntent
     data class UpdateGroceryListName(val name: TextFieldValue) : GroceryListsUiIntent
     data object OnKeyboardHidden : GroceryListsUiIntent
     data object OnDeleteGroceryList : GroceryListsUiIntent

@@ -109,6 +109,9 @@ class GroceryListViewModel @AssistedInject constructor(
     private val _scrollUpEventFlow = MutableStateFlow<UiEvent<Unit>?>(null)
     val scrollUpEventFlow = _scrollUpEventFlow.asStateFlow()
 
+    private val _groceryPurchasedEventFlow = MutableStateFlow<UiEvent<Grocery>?>(null)
+    val groceryPurchasedEventFlow = _groceryPurchasedEventFlow.asStateFlow()
+
     init {
         viewModelScope.launch {
             categoryProductsFlow
@@ -203,6 +206,9 @@ class GroceryListViewModel @AssistedInject constructor(
         is GroceryListsUiIntent.OnGroceryItemClick ->
             toggleItemPurchased(intent.item)
 
+        is GroceryListsUiIntent.OnUndoPurchase ->
+            undoPurchase(intent.item)
+
         is GroceryListsUiIntent.UpdateGroceryListName ->
             openedGroceryListName = intent.name
 
@@ -246,6 +252,26 @@ class GroceryListViewModel @AssistedInject constructor(
                 productId = item.productId,
                 listId = openedGroceryListId,
                 purchased = !item.purchased
+            )
+            if (!item.purchased) {
+                _groceryPurchasedEventFlow.update {
+                    object : UiEvent<Grocery> {
+                        override val data = item
+                        override fun onConsumed() {
+                            _groceryPurchasedEventFlow.update { null }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun undoPurchase(item: Grocery) {
+        viewModelScope.launch {
+            groceryRepository.updatePurchased(
+                productId = item.productId,
+                listId = openedGroceryListId,
+                purchased = false
             )
         }
     }

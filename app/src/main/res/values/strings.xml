@@ -3,6 +3,8 @@
     <string name="app_name" translatable="false">Grocery Genius</string>
     <!-- GroceryListScreen -->
     <string name="purchased_groceries_group_title">Recently used</string>
+    <string name="grocery_purchased_snackbar_message">%1$s purchased</string>
+    <string name="undo">Undo</string>
     <string name="grocery_list_name_text_field_placeholder">Enter a name</string>
     <string name="shopping_done_title">Shopping done!</string>
     <string name="empty_grocery_list_title">Add your first groceries!</string>

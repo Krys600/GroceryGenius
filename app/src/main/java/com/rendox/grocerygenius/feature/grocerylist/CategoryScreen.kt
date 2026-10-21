@@ -1,5 +1,6 @@
 package com.rendox.grocerygenius.feature.grocerylist
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextMotion
@@ -88,6 +90,7 @@ fun CategoryScreen(
     }
 
     val context = LocalContext.current
+    val view = LocalView.current
 
     Column(
         modifier = Modifier
@@ -126,7 +129,10 @@ fun CategoryScreen(
                 GroceryGridItem(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { onGroceryClick(grocery) },
+                        .clickable {
+                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                            onGroceryClick(grocery)
+                        },
                     groceryName = grocery.name,
                     groceryDescription = grocery.description,
                     color = if (grocery.purchased) {

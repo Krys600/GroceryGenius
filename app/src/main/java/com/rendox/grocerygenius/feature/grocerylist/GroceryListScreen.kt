@@ -1,5 +1,6 @@
 package com.rendox.grocerygenius.feature.grocerylist
 
+import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -51,6 +52,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -71,10 +74,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -119,6 +125,8 @@ import com.rendox.grocerygenius.ui.theme.GroceryItemRounding
 import com.rendox.grocerygenius.ui.theme.TopAppBarMediumHeight
 import com.rendox.grocerygenius.ui.theme.TopAppBarSmallHeight
 import java.io.File
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,6 +148,8 @@ fun GroceryListRoute(
         .collectAsStateWithLifecycle()
     val groceryListPurchaseState by groceryListViewModel.groceryListPurchaseStateFlow.collectAsStateWithLifecycle()
     val scrollUpEvent by groceryListViewModel.scrollUpEventFlow.collectAsStateWithLifecycle()
+    val groceryPurchasedEvent by groceryListViewModel.groceryPurchasedEventFlow
+        .collectAsStateWithLifecycle()
 
     ObserveUiEvent(closeGroceryListScreenEvent) {
         navigateBack()
@@ -154,6 +164,24 @@ fun GroceryListRoute(
     val addBottomSheetState = rememberStandardBottomSheetState()
     val scaffoldState = rememberBottomSheetScaffoldState(addBottomSheetState)
     val addGroceryBottomSheetState = rememberAddGroceryBottomSheetState(addBottomSheetState)
+
+    val context = LocalContext.current
+    val snackbarCoroutineScope = rememberCoroutineScope()
+    var undoSnackbarJob by remember { mutableStateOf<Job?>(null) }
+    ObserveUiEvent(groceryPurchasedEvent) { grocery ->
+        // Replace the previous snackbar instead of queueing one per tap
+        undoSnackbarJob?.cancel()
+        undoSnackbarJob = snackbarCoroutineScope.launch {
+            val result = scaffoldState.snackbarHostState.showSnackbar(
+                message = context.getString(R.string.grocery_purchased_snackbar_message, grocery.name),
+                actionLabel = context.getString(R.string.undo),
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                groceryListViewModel.onIntent(GroceryListsUiIntent.OnUndoPurchase(grocery))
+            }
+        }
+    }
 
     LaunchedEffect(addGroceryBottomSheetState.sheetIsCollapsing) {
         if (addGroceryBottomSheetState.sheetIsCollapsing) {
@@ -578,6 +606,8 @@ private fun GroceryGrid(
     onCategoryItemClick: (String?) -> Unit
 ) {
     val context = LocalContext.current
+    val view = LocalView.current
+    val hapticFeedback = LocalHapticFeedback.current
 
     ObserveUiEvent(scrollUpEvent) {
         lazyGridState.animateScrollToItem(0)
@@ -591,8 +621,14 @@ private fun GroceryGrid(
                 modifier = Modifier
                     .fillMaxSize()
                     .combinedClickable(
-                        onClick = { onGroceryClick(grocery) },
-                        onLongClick = { onGroceryLongClick(grocery) }
+                        onClick = {
+                            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                            onGroceryClick(grocery)
+                        },
+                        onLongClick = {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onGroceryLongClick(grocery)
+                        }
                     ),
                 groceryName = grocery.name,
                 groceryDescription = grocery.description,
