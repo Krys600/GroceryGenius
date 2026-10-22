@@ -3,6 +3,7 @@ package com.rendox.grocerygenius.feature.dashboardscreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rendox.grocerygenius.R
 import com.rendox.grocerygenius.databinding.ListRecyclerviewBinding
 import com.rendox.grocerygenius.feature.dashboardscreen.recyclerview.DashboardRecyclerViewAdapter
+import com.rendox.grocerygenius.feature.webdavsync.SyncButton
 import com.rendox.grocerygenius.model.GroceryList
 import com.rendox.grocerygenius.ui.helpers.ObserveUiEvent
 import com.rendox.grocerygenius.ui.theme.GroceryGeniusTheme
@@ -61,7 +63,8 @@ fun GroceryListsDashboardRoute(
         groceryLists = screenState,
         onIntent = viewModel::onIntent,
         navigateToSettingsScreen = navigateToSettingsScreen,
-        navigateToGroceryListScreen = navigateToGroceryListScreen
+        navigateToGroceryListScreen = navigateToGroceryListScreen,
+        syncButton = { SyncButton() }
     )
 }
 
@@ -70,7 +73,8 @@ fun GroceryListsDashboardScreen(
     groceryLists: List<GroceryList>,
     onIntent: (GroceryListsDashboardUiIntent) -> Unit = {},
     navigateToSettingsScreen: () -> Unit = {},
-    navigateToGroceryListScreen: (String) -> Unit = {}
+    navigateToGroceryListScreen: (String) -> Unit = {},
+    syncButton: @Composable () -> Unit = {}
 ) {
     var scrollState by rememberSaveable { mutableIntStateOf(0) }
 
@@ -89,16 +93,19 @@ fun GroceryListsDashboardScreen(
                 text = stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.titleLarge
             )
-            IconButton(
+            Row(
                 modifier = Modifier
                     .padding(end = TopAppBarActionsHorizontalPadding)
                     .align(Alignment.CenterEnd),
-                onClick = navigateToSettingsScreen
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.settings)
-                )
+                syncButton()
+                IconButton(onClick = navigateToSettingsScreen) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.settings)
+                    )
+                }
             }
         }
         Image(

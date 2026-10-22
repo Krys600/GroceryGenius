@@ -103,6 +103,7 @@ import com.rendox.grocerygenius.feature.addgrocery.rememberAddGroceryBottomSheet
 import com.rendox.grocerygenius.feature.editgrocery.EditGroceryBottomSheet
 import com.rendox.grocerygenius.feature.editgrocery.EditGroceryUiIntent
 import com.rendox.grocerygenius.feature.editgrocery.EditGroceryViewModel
+import com.rendox.grocerygenius.feature.webdavsync.SyncButton
 import com.rendox.grocerygenius.model.Category
 import com.rendox.grocerygenius.model.Grocery
 import com.rendox.grocerygenius.model.GroceryGeniusColorScheme
@@ -227,7 +228,8 @@ fun GroceryListRoute(
                 GroceryListsUiIntent.OnNavigateToCategoryScreen(categoryId)
             )
         },
-        groceryListPurchaseState = groceryListPurchaseState
+        groceryListPurchaseState = groceryListPurchaseState,
+        syncButton = { SyncButton() }
     )
 
     val editGroceryId = editGroceryIdState.value
@@ -280,7 +282,8 @@ private fun GroceryListScreen(
     onGroceryListUiIntent: (GroceryListsUiIntent) -> Unit = {},
     onAddGroceryUiIntent: (AddGroceryUiIntent) -> Unit = {},
     showEditGroceryBottomSheet: (String) -> Unit = {},
-    navigateToCategoryScreen: (String?) -> Unit = {}
+    navigateToCategoryScreen: (String?) -> Unit = {},
+    syncButton: @Composable () -> Unit = {}
 ) {
     val toolbarHeightRange = with(LocalDensity.current) {
         TopAppBarSmallHeight.roundToPx()..TopAppBarMediumHeight.roundToPx()
@@ -399,7 +402,8 @@ private fun GroceryListScreen(
                 },
                 onEditGroceryListToggle = {
                     onGroceryListUiIntent(GroceryListsUiIntent.OnEditGroceryListToggle(it))
-                }
+                },
+                syncButton = syncButton
             )
 
             if (groceryGroups != null && categories != null) {
@@ -447,7 +451,8 @@ private fun GroceryListCollapsingToolbar(
     onUpdateGroceryListName: (TextFieldValue) -> Unit,
     onNavigationIconClicked: () -> Unit = {},
     onDeleteGroceryList: () -> Unit = {},
-    onEditGroceryListToggle: (Boolean) -> Unit = {}
+    onEditGroceryListToggle: (Boolean) -> Unit = {},
+    syncButton: @Composable () -> Unit = {}
 ) {
     Column(modifier = modifier) {
         val toolbarEnterTransition = remember {
@@ -518,6 +523,7 @@ private fun GroceryListCollapsingToolbar(
                     }
                 },
                 actions = {
+                    syncButton()
                     IconButton(onClick = onDeleteGroceryList) {
                         Icon(
                             imageVector = Icons.Default.Delete,

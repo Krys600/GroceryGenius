@@ -70,7 +70,7 @@ class WebDavClient @Inject constructor(
                 response.code == 404 -> null
                 response.isSuccessful -> RemoteSnapshotFile(
                     content = response.body?.string().orEmpty(),
-                    etag = response.header("ETag") ?: response.header("OC-ETag")
+                    etag = response.etag()
                 )
 
                 else -> throw response.toException()
@@ -188,6 +188,16 @@ fun WebDavSyncConfig.fileUrl(): HttpUrl = rootUrl().newBuilder()
     .addPathSegment(WebDavClient.REMOTE_FOLDER_NAME)
     .addPathSegment(WebDavClient.REMOTE_FILE_NAME)
     .build()
+
+/**
+ * Apache's mod_deflate appends a suffix such as -gzip to the ETag of compressed responses, but
+ * compares If-Match with the original ETag, so uploads with it would always fail with 412.
+ * Nextcloud and ownCloud send the original ETag in OC-ETag, other servers need the suffix removed.
+ */
+private fun Response.etag(): String? = header("OC-ETag")
+    ?: header("ETag")?.replace(COMPRESSION_ETAG_SUFFIX, "\"")
+
+private val COMPRESSION_ETAG_SUFFIX = Regex("""-(gzip|br|zstd)"$""")
 
 private fun Response.toException() = WebDavSyncException(
     error = when (code) {

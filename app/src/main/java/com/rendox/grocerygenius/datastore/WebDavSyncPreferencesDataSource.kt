@@ -6,8 +6,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.rendox.grocerygenius.model.SyncMethod
+import com.rendox.grocerygenius.model.SyncNetworkCondition
+import com.rendox.grocerygenius.model.SyncSchedule
 import com.rendox.grocerygenius.model.WebDavSyncConfig
 import com.rendox.grocerygenius.model.WebDavSyncError
 import com.rendox.grocerygenius.model.WebDavSyncStatus
@@ -29,11 +33,25 @@ class WebDavSyncPreferencesDataSource @Inject constructor(
 
     val config: Flow<WebDavSyncConfig> = preferences
         .map { preferences ->
+            val defaultSchedule = SyncSchedule()
             WebDavSyncConfig(
+                method = preferences[METHOD_KEY]
+                    ?.let { methodName -> SyncMethod.entries.find { it.name == methodName } }
+                    ?: SyncMethod.WEBDAV,
                 serverUrl = preferences[SERVER_URL_KEY] ?: "",
                 username = preferences[USERNAME_KEY] ?: "",
                 password = preferences[PASSWORD_KEY] ?: "",
-                isEnabled = preferences[ENABLED_KEY] ?: false
+                fileUri = preferences[FILE_URI_KEY] ?: "",
+                isEnabled = preferences[ENABLED_KEY] ?: false,
+                schedule = SyncSchedule(
+                    intervalMinutes = preferences[INTERVAL_MINUTES_KEY] ?: defaultSchedule.intervalMinutes,
+                    networkCondition = preferences[NETWORK_CONDITION_KEY]
+                        ?.let { conditionName -> SyncNetworkCondition.entries.find { it.name == conditionName } }
+                        ?: defaultSchedule.networkCondition,
+                    requireBatteryNotLow = preferences[REQUIRE_BATTERY_NOT_LOW_KEY]
+                        ?: defaultSchedule.requireBatteryNotLow,
+                    syncOnChanges = preferences[SYNC_ON_CHANGES_KEY] ?: defaultSchedule.syncOnChanges
+                )
             )
         }
         .distinctUntilChanged()
@@ -52,8 +70,13 @@ class WebDavSyncPreferencesDataSource @Inject constructor(
         }
         .distinctUntilChanged()
 
+    /**
+     * Saves the connection settings. The schedule is saved separately with [saveSchedule].
+     */
     suspend fun saveConfig(config: WebDavSyncConfig) {
         dataStore.edit { preferences ->
+            preferences[METHOD_KEY] = config.method.name
+            preferences[FILE_URI_KEY] = config.fileUri
             preferences[SERVER_URL_KEY] = config.serverUrl
             preferences[USERNAME_KEY] = config.username
             preferences[PASSWORD_KEY] = config.password
@@ -64,15 +87,25 @@ class WebDavSyncPreferencesDataSource @Inject constructor(
     }
 
     /**
-     * Disables sync and forgets the password. The server URL and the username are kept,
-     * so that the user doesn't have to enter them again.
+     * Disables sync and forgets the password and the sync file. The server URL and the username
+     * are kept, so that the user doesn't have to enter them again.
      */
     suspend fun disable() {
         dataStore.edit { preferences ->
             preferences[ENABLED_KEY] = false
             preferences.remove(PASSWORD_KEY)
+            preferences.remove(FILE_URI_KEY)
             preferences.remove(LAST_SUCCESSFUL_SYNC_KEY)
             preferences.remove(LAST_ERROR_KEY)
+        }
+    }
+
+    suspend fun saveSchedule(schedule: SyncSchedule) {
+        dataStore.edit { preferences ->
+            preferences[INTERVAL_MINUTES_KEY] = schedule.intervalMinutes
+            preferences[NETWORK_CONDITION_KEY] = schedule.networkCondition.name
+            preferences[REQUIRE_BATTERY_NOT_LOW_KEY] = schedule.requireBatteryNotLow
+            preferences[SYNC_ON_CHANGES_KEY] = schedule.syncOnChanges
         }
     }
 
@@ -91,6 +124,12 @@ class WebDavSyncPreferencesDataSource @Inject constructor(
 
     companion object {
         val ENABLED_KEY = booleanPreferencesKey("enabled")
+        val METHOD_KEY = stringPreferencesKey("method")
+        val FILE_URI_KEY = stringPreferencesKey("file_uri")
+        val INTERVAL_MINUTES_KEY = intPreferencesKey("interval_minutes")
+        val NETWORK_CONDITION_KEY = stringPreferencesKey("network_condition")
+        val REQUIRE_BATTERY_NOT_LOW_KEY = booleanPreferencesKey("require_battery_not_low")
+        val SYNC_ON_CHANGES_KEY = booleanPreferencesKey("sync_on_changes")
         val SERVER_URL_KEY = stringPreferencesKey("server_url")
         val USERNAME_KEY = stringPreferencesKey("username")
         val PASSWORD_KEY = stringPreferencesKey("password")

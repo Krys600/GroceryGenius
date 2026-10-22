@@ -54,9 +54,35 @@
     <string name="settings_image_by_freepik_description">The image displayed on grocery list screen was created by pch.vector</string>
     <string name="settings_sync" tools:ignore="MissingTranslation">Sync</string>
     <!-- WebDavSyncScreen -->
-    <string name="webdav_sync_title" tools:ignore="MissingTranslation">Nextcloud / WebDAV Sync</string>
-    <string name="webdav_sync_settings_description" tools:ignore="MissingTranslation">Keep your grocery lists in sync across devices using your own server.</string>
-    <string name="webdav_sync_description" tools:ignore="MissingTranslation">Sync your grocery lists, custom groceries and category order through your Nextcloud or any other WebDAV server. All devices connected to the same folder share the same lists, so you can also share them with your family by connecting to a shared folder.</string>
+    <string name="webdav_sync_title" tools:ignore="MissingTranslation">Nextcloud Sync</string>
+    <string name="webdav_sync_settings_description" tools:ignore="MissingTranslation">Keep your grocery lists in sync across devices using Nextcloud or another cloud storage.</string>
+    <string name="webdav_sync_description" tools:ignore="MissingTranslation">Sync your grocery lists, custom groceries and category order through Nextcloud or another cloud storage. All devices using the same sync file share the same lists, so you can also share them with your family through a shared folder.</string>
+    <string name="sync_method_file" tools:ignore="MissingTranslation">Nextcloud app / file</string>
+    <string name="sync_method_webdav" tools:ignore="MissingTranslation">WebDAV server</string>
+    <string name="file_sync_description" tools:ignore="MissingTranslation">Create a sync file or choose an existing one in the file picker. With the Nextcloud app installed and logged in, select Nextcloud in the picker\'s menu, so you don\'t have to enter a server address or password. On your other devices, choose the same file.</string>
+    <string name="file_sync_connected_file" tools:ignore="MissingTranslation">Sync file: %s</string>
+    <string name="file_sync_create_file" tools:ignore="MissingTranslation">Create File</string>
+    <string name="file_sync_choose_file" tools:ignore="MissingTranslation">Choose File</string>
+    <string name="file_sync_storage_note" tools:ignore="MissingTranslation">The app that provides the file, e.g. Nextcloud, uploads the changes to the server. The data on your device and in the file is kept when you disconnect.</string>
+    <string name="sync_schedule_title" tools:ignore="MissingTranslation">Schedule</string>
+    <string name="sync_schedule_interval" tools:ignore="MissingTranslation">Background sync</string>
+    <string name="sync_schedule_interval_never" tools:ignore="MissingTranslation">Off</string>
+    <plurals name="sync_schedule_interval_minutes" tools:ignore="MissingTranslation">
+        <item quantity="one">Every %d minute</item>
+        <item quantity="other">Every %d minutes</item>
+    </plurals>
+    <plurals name="sync_schedule_interval_hours" tools:ignore="MissingTranslation">
+        <item quantity="one">Every hour</item>
+        <item quantity="other">Every %d hours</item>
+    </plurals>
+    <string name="sync_schedule_network" tools:ignore="MissingTranslation">Network</string>
+    <string name="sync_network_any" tools:ignore="MissingTranslation">Any network</string>
+    <string name="sync_network_unmetered" tools:ignore="MissingTranslation">Only on unmetered networks (e.g. Wi-Fi)</string>
+    <string name="sync_network_not_roaming" tools:ignore="MissingTranslation">Not while roaming</string>
+    <string name="sync_network_not_required" tools:ignore="MissingTranslation">No network needed (file on this device)</string>
+    <string name="sync_schedule_battery_not_low" tools:ignore="MissingTranslation">Only when the battery is not low</string>
+    <string name="sync_schedule_sync_on_changes" tools:ignore="MissingTranslation">Sync after changes</string>
+    <string name="sync_schedule_sync_on_changes_description" tools:ignore="MissingTranslation">Also syncs when you open the app. You can always sync manually with Sync Now.</string>
     <string name="webdav_sync_server_url" tools:ignore="MissingTranslation">WebDAV folder URL</string>
     <string name="webdav_sync_server_url_placeholder" translatable="false">https://cloud.example.com/remote.php/dav/files/USERNAME/</string>
     <string name="webdav_sync_server_url_hint" tools:ignore="MissingTranslation">In Nextcloud, you can find it under Files → Files settings → WebDAV.</string>
@@ -72,6 +98,8 @@
     <string name="webdav_sync_status_syncing" tools:ignore="MissingTranslation">Syncing…</string>
     <string name="webdav_sync_status_not_synced" tools:ignore="MissingTranslation">Not synced yet</string>
     <string name="webdav_sync_status_last_synced" tools:ignore="MissingTranslation">Last synced: %s</string>
+    <string name="sync_button_failed_message" tools:ignore="MissingTranslation">Sync failed: %s</string>
+    <string name="sync_button_failed_content_description" tools:ignore="MissingTranslation">Sync now. Last sync failed: %s</string>
     <string name="webdav_sync_status_failed" tools:ignore="MissingTranslation">Last sync failed: %s</string>
     <string name="webdav_sync_storage_note" tools:ignore="MissingTranslation">Your data is stored in the file %s inside this folder. The data on your device and on the server is kept when you disconnect.</string>
     <string name="webdav_sync_error_invalid_url" tools:ignore="MissingTranslation">The URL is not valid. It must start with https:// or http://.</string>
@@ -83,6 +111,8 @@
     <string name="webdav_sync_error_redirect" tools:ignore="MissingTranslation">The server redirected the request. Please enter the exact WebDAV URL.</string>
     <string name="webdav_sync_error_server_error" tools:ignore="MissingTranslation">The server could not process the request.</string>
     <string name="webdav_sync_error_network_error" tools:ignore="MissingTranslation">Could not connect to the server.</string>
+    <string name="file_sync_error_not_accessible" tools:ignore="MissingTranslation">The sync file is no longer accessible. Please choose it again.</string>
+    <string name="file_sync_error_io" tools:ignore="MissingTranslation">The sync file could not be read or written.</string>
     <string name="webdav_sync_error_invalid_remote_data" tools:ignore="MissingTranslation">The sync file on the server is damaged.</string>
     <string name="webdav_sync_error_unsupported_remote_version" tools:ignore="MissingTranslation">The sync file was created by a newer version of the app. Please update the app.</string>
     <string name="webdav_sync_error_too_many_conflicts" tools:ignore="MissingTranslation">The data kept changing during sync. It will be retried.</string>

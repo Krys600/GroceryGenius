@@ -108,6 +108,24 @@ class WebDavClientTest {
     }
 
     @Test
+    fun `download prefers the original etag of Nextcloud`() = runBlocking {
+        server.enqueue(
+            MockResponse().setBody("{}")
+                .setHeader("ETag", "\"abc-gzip\"")
+                .setHeader("OC-ETag", "\"abc\"")
+        )
+
+        assertThat(client.download(config)?.etag).isEqualTo("\"abc\"")
+    }
+
+    @Test
+    fun `download removes the suffix that Apache adds to etags of compressed responses`() = runBlocking {
+        server.enqueue(MockResponse().setBody("{}").setHeader("ETag", "\"abc-gzip\""))
+
+        assertThat(client.download(config)?.etag).isEqualTo("\"abc\"")
+    }
+
+    @Test
     fun `weak etags are not used as a precondition`() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(204))
 
