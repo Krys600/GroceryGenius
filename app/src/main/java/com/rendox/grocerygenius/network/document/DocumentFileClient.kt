@@ -9,6 +9,7 @@ import android.os.Build
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.core.content.getSystemService
 import com.rendox.grocerygenius.model.WebDavSyncError
 import com.rendox.grocerygenius.model.WebDavSyncException
 import com.rendox.grocerygenius.network.di.Dispatcher
@@ -135,7 +136,7 @@ class DocumentFileClient @Inject constructor(
     )
 
     private fun isOnline(): Boolean {
-        val connectivityManager = context.getSystemService(ConnectivityManager::class.java) ?: return true
+        val connectivityManager = context.getSystemService<ConnectivityManager>() ?: return true
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
                 ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
