@@ -20,8 +20,8 @@ android {
         applicationId = "com.rendox.grocerygenius"
         minSdk = 21
         targetSdk = 34
-        versionCode = 8
-        versionName = "0.2.1"
+        versionCode = 9
+        versionName = "0.2.2"
 
         testInstrumentationRunner = "com.rendox.grocerygenius.testing.GroceryGeniusTestRunner"
         vectorDrawables {
